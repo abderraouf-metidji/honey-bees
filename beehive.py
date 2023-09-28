@@ -6,6 +6,7 @@ class Beehive(Flower):
         super().__init__(x, y)
         self.flowers = flowers
         self.distance_matrix = self.matrix()  # Calculate the distance matrix
+        self.genome_list = self.butiner(100)  # Create a list of 100 bees
 
     def butiner(self, num_iterations):
         """Managing the foraging of the bees"""
@@ -32,34 +33,55 @@ class Beehive(Flower):
         return genome_list
     
     def selection(self):
-        # if a bee's distance is in the second half then it is removed from the Beehive
-        # the remaining bees are used for reproduction
-        # print the genome_list of the bees that were removed
-        pass
+        removed_bees = []
+        for bee_genome, bee_distance in self.genome_list:
+            if bee_distance > sum(distance for _, distance in self.genome_list) / 100:
+                removed_bees.append((bee_genome, bee_distance))
+
+        for removed_bee in removed_bees:
+            self.genome_list.remove(removed_bee)
+
+        # print("Genome List of Removed Bees:")
+        # for genome, distance in removed_bees:
+        #     print(f"Genome: {genome}, Distance: {distance}")
                 
     def reproduction(self):
-        """Reproduction of the bees that were kept in the Beehive"""
-        # create a list of available parents from the 50 bees that were not removed
-        # randomly select 2 parents from the list
-        # create 2 children from the 2 parents
-        # children are based on 1/3 of parent A and 2/3 of parent B for 1st child
-        # children are based on 2/3 of parent A and 1/3 of parent B for 2nd child
-        # add the 2 children to the Beehive
-        # repeat until the Beehive has 100 bees again
-        # print the genome_list of the parents and children
-        pass
-    
-    def mutation(self):
-        # pick a random bee from the Beehive and change its genome_list
-        # the bee is picked based on a chance of 1/500
-        # inverse the position of 2 flowers in the genome_list to reduce the total distance
-        # print the genome_list of the bee that was mutated
-        pass
+        # Create a list of available parents from the 50 bees that were not removed
+        available_parents = self.genome_list[:50]
 
+        # Check if there are enough available parents to perform reproduction
+        while len(self.genome_list) < 100 and len(available_parents) >= 2:
+            # Randomly select 2 parents from the list
+            parent_a = random.choice(available_parents)
+            available_parents.remove(parent_a)
+            parent_b = random.choice(available_parents)
+            available_parents.remove(parent_b)
+
+            # Calculate the pivot point
+            pivot = len(parent_a[0]) // 3
+
+            # Create children based on the pivot
+            child1_genome = parent_a[0][:pivot] + parent_b[0][pivot:]
+            child2_genome = parent_b[0][:pivot] + parent_a[0][pivot:]
+
+            # Calculate the distances for the children
+            child1_distance = self.calculate_distance(child1_genome)
+            child2_distance = self.calculate_distance(child2_genome)
+
+            # Add the children to the Beehive
+            self.genome_list.append((child1_genome, child1_distance))
+            self.genome_list.append((child2_genome, child2_distance))
+
+        # print("Genome List of Parents and Children:")
+        # for genome, distance in self.genome_list:
+        #     print(f"Genome: {genome}, Distance: {distance}")
+        
+    def mutation(self):
+        pass
 
 if __name__ == '__main__':
     flower = Flower(0, 0)
     flowers = flower.flower_distance()
     beehive = Beehive(0, 0, flowers)
-    genome_list = beehive.butiner(100)
-    
+    beehive.selection()
+    beehive.reproduction()
