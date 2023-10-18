@@ -1,40 +1,33 @@
-import csv
+from beehive import * 
+import random
 
-class Flower:
-    def __init__(self, x, y):
-        self.x, self.y = x, y
-        self.flowers = []
+class Generation(Beehive):
+    def __init__(self, x, y, flowers):
+        super().__init__(x, y, flowers)
+        
+        generation = 0
+        avg_distances = []
+        
+        while generation < 10:
+            self.genome_list = self.butiner(101)
+            self.genome_list.sort(key=lambda x: x[1])
+            self.genome_list = self.genome_list[:100]
+            generation += 1
+            
+            avg_distance = sum(distance for _, distance in self.genome_list) / len(self.genome_list)
+            avg_distances.append(avg_distance)
+            
+            print(f"Generation {generation}: Average distance: {avg_distance}")
 
-    def distance(self, other_flower):
-        """Calculate distance between two flowers"""
-        return ((float(self.x) - float(other_flower.x))**2 + (float(self.y) - float(other_flower.y))**2)**0.5
-
-    def flower_distance(self):
-        """Calculate distance between all flowers"""
-        flowers = []
-        with open('flower_coordinates.csv', 'r', newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                x, y = row[0], row[1]
-                flowers.append(Flower(float(x), float(y)))  # Convert x and y to floats
-        self.flowers = flowers  # Assign the list of flowers to self.flowers
-
-        return flowers
-
-    def matrix(self):
-        """Create a matrix with all distances between flowers"""
-        distance_matrix = [[flower.distance(other_flower) for other_flower in self.flowers] for flower in self.flowers]
-        return distance_matrix
-
-    def print_matrix(self):
-        """Print the matrix"""
-        distance_matrix = self.matrix()
-        for row in distance_matrix:
-            rounded_row = [round(element, 1) for element in row]  # Round each element in the row
-            print(rounded_row)
-
+    def print_genome_list(self):
+        count = 0
+        for genome, distance in self.genome_list:
+            count += 1
+            flower_coordinates = [(flower.x, flower.y) for flower in genome]
+            print(f'Bee {count} - Distance: {distance}')
 
 if __name__ == '__main__':
     flower = Flower(0, 0)
-    flower.flower_distance()
-    flower.print_matrix()
+    flowers = flower.flower_distance()
+    generation = Generation(0, 0, flowers)
+    generation.print_genome_list()

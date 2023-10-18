@@ -1,18 +1,52 @@
+from random import choice
 import random
-from main import *
+import csv
+
+class Flower:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.flowers = []
+
+    def distance(self, other_flower):
+        """Calculate distance between two flowers"""
+        return ((float(self.x) - float(other_flower.x))**2 + (float(self.y) - float(other_flower.y))**2)**0.5
+
+    def flower_distance(self):
+        """Calculate distance between all flowers"""
+        flowers = []
+        with open('flower_coordinates.csv', 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                x, y = row[0], row[1]
+                flowers.append(Flower(float(x), float(y)))  # Convert x and y to floats
+        self.flowers = flowers  # Assign the list of flowers to self.flowers
+
+        return flowers
+
+    def matrix(self):
+        """Create a matrix with all distances between flowers"""
+        distance_matrix = [[flower.distance(other_flower) for other_flower in self.flowers] for flower in self.flowers]
+        return distance_matrix
+
+    # def print_matrix(self):
+    #     """Print the matrix"""
+    #     distance_matrix = self.matrix()
+    #     for row in distance_matrix:
+    #         rounded_row = [round(element, 1) for element in row]  # Round each element in the row
+    #         print(rounded_row)
 
 class Beehive(Flower):
     def __init__(self, x, y, flowers):
         super().__init__(x, y)
         self.flowers = flowers
         self.distance_matrix = self.matrix()  # Calculate the distance matrix
-        self.genome_list = self.butiner(100)  # Create a list of 100 bees
+        self.genome_list = self.butiner(101)  # Create a list of 100 bees
 
     def butiner(self, num_iterations):
         """Managing the foraging of the bees"""
         genome_list = []
 
-        for _ in range(num_iterations):
+        for _ in range(num_iterations - 1):  # Run for num_iterations - 1 times to generate 100 genomes
             remaining_flowers = self.flowers.copy()  # Create a copy of the list of flowers
             bee_genome = []
             bee_distance = 0
@@ -32,19 +66,11 @@ class Beehive(Flower):
 
         return genome_list
     
+    
     def selection(self):
-        removed_bees = []
-        for bee_genome, bee_distance in self.genome_list:
-            if bee_distance > sum(distance for _, distance in self.genome_list) / 100:
-                removed_bees.append((bee_genome, bee_distance))
+        self.genome_list.sort(key=lambda x: x[1])  # Sort the list by distance
+        self.genome_list = self.genome_list[:50]  # Keep the 50 best bees
 
-        for removed_bee in removed_bees:
-            self.genome_list.remove(removed_bee)
-
-        # print("Genome List of Removed Bees:")
-        # for genome, distance in removed_bees:
-        #     print(f"Genome: {genome}, Distance: {distance}")
-                
     def reproduction(self):
         # Create a list of available parents from the 50 bees that were not removed
         available_parents = self.genome_list[:50]
@@ -52,9 +78,15 @@ class Beehive(Flower):
         # Check if there are enough available parents to perform reproduction
         while len(self.genome_list) < 100 and len(available_parents) >= 2:
             # Randomly select 2 parents from the list
-            parent_a = random.choice(available_parents)
+            parent_a = choice(available_parents)
             available_parents.remove(parent_a)
-            parent_b = random.choice(available_parents)
+
+            # Filter available parents that don't have the same flower in their genome list
+            valid_parents = [parent for parent in available_parents if not any(flower in parent[0] for flower in parent_a[0])]
+            if not valid_parents:
+                break  # Break the loop if there are no valid parents remaining
+
+            parent_b = choice(valid_parents)
             available_parents.remove(parent_b)
 
             # Calculate the pivot point
@@ -72,16 +104,29 @@ class Beehive(Flower):
             self.genome_list.append((child1_genome, child1_distance))
             self.genome_list.append((child2_genome, child2_distance))
 
-        # print("Genome List of Parents and Children:")
-        # for genome, distance in self.genome_list:
-        #     print(f"Genome: {genome}, Distance: {distance}")
-        
-    def mutation(self):
-        pass
+            
+    # def print_genome_list(self):
+    #     count = 0
+    #     for genome, distance in self.genome_list:
+    #         count += 1
+    #         flower_coordinates = [(flower.x, flower.y) for flower in genome]
+    #         print(f'Bee {count} - Distance: {distance}')
 
-if __name__ == '__main__':
-    flower = Flower(0, 0)
-    flowers = flower.flower_distance()
-    beehive = Beehive(0, 0, flowers)
-    beehive.selection()
-    beehive.reproduction()
+    def calculate_distance(self, genome):
+        """Calculate the distance for a given genome"""
+        distance = 0
+        for i in range(1, len(genome)):
+            prev_flower = genome[i - 1]
+            curr_flower = genome[i]
+            distance += self.distance_matrix[self.flowers.index(prev_flower)][self.flowers.index(curr_flower)]
+        return distance
+
+
+# if __name__ == '__main__':
+    # flower = Flower(0, 0)
+    # flowers = flower.flower_distance()
+    # beehive = Beehive(0, 0, flowers)
+    # beehive.selection()
+    # beehive.reproduction()
+    # flower.print_matrix()
+    # beehive.print_genome_list()
