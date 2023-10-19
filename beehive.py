@@ -27,8 +27,8 @@ class Flower:
             reader = csv.reader(csvfile)
             for row in reader:
                 x, y = row[0], row[1]
-                flowers.append(Flower(float(x), float(y)))  # Convert x and y to floats
-        self.flowers = flowers  # Assign the list of flowers to self.flowers
+                flowers.append(Flower(float(x), float(y)))
+        self.flowers = flowers
         return flowers
 
     def matrix(self):
@@ -48,8 +48,7 @@ class Beehive(Flower):
         """
         super().__init__(x, y)
         self.flowers = flowers
-        self.distance_matrix = self.matrix()  # Calculate the distance matrix
-        self.genome_list = self.butiner(101)  # Create a list of 100 bees
+        self.distance_matrix = self.matrix()  
 
     def butiner(self, num_iterations):
         """
@@ -58,18 +57,18 @@ class Beehive(Flower):
             list: A list of tuples representing the genomes and distances traveled by the bees.
         """
         genome_list = []
-        for _ in range(num_iterations - 1):  # Run for num_iterations - 1 times to generate 100 genomes
-            remaining_flowers = self.flowers.copy()  # Create a copy of the list of flowers
+        for _ in range(num_iterations):
+            remaining_flowers = self.flowers.copy()
             bee_genome = []
             bee_distance = 0
             while remaining_flowers:
-                random_flower = random.choice(remaining_flowers)  # Choose a random flower from the remaining ones
-                bee_genome.append(random_flower)  # Add the random flower to the bee's genome list
-                # Calculate the distance using the matrix
+                random_flower = random.choice(remaining_flowers)  
+                bee_genome.append(random_flower)
+                
                 if len(bee_genome) > 1:
                     prev_flower = bee_genome[-2]
                     bee_distance += self.distance_matrix[self.flowers.index(prev_flower)][self.flowers.index(random_flower)]
-                remaining_flowers.remove(random_flower)  # Remove the chosen flower from the remaining flowers
+                remaining_flowers.remove(random_flower)  
             genome_list.append((bee_genome, bee_distance))
         return genome_list
 
@@ -79,8 +78,8 @@ class Beehive(Flower):
         Returns:
             list: The list of the best-performing bees.
         """
-        self.genome_list.sort(key=lambda x: x[1])  # Sort the list by distance
-        self.genome_list = self.genome_list[:50]  # Keep the 50 best bees
+        self.genome_list.sort(key=lambda x: x[1])  
+        self.genome_list = self.genome_list[:50] 
         return self.genome_list
 
     def reproduction(self):
@@ -89,20 +88,20 @@ class Beehive(Flower):
         Returns:
             list: The updated list of genomes after reproduction.
         """
-        available_parents = self.genome_list[:50]  # Create a list of available parents from the 50 bees that were not removed
-        while len(self.genome_list) < 100 and len(available_parents) >= 2:  # Check if there are enough available parents to perform reproduction
-            parent_a = choice(available_parents)  # Randomly select 2 parents from the list
+        available_parents = self.genome_list.copy()
+        while len(self.genome_list) < 100 and len(available_parents) >= 2:  
+            parent_a = choice(available_parents)  
             available_parents.remove(parent_a)
             parent_b = choice(available_parents)
             available_parents.remove(parent_b)
-            pivot = len(parent_a[0]) // 2  # Calculate the pivot point
-            child1_genome = parent_a[0][:pivot] + parent_b[0][pivot:]  # Create children based on the pivot
+            pivot = len(parent_a[0]) // 4  
+            child1_genome = parent_a[0][:pivot] + parent_b[0][pivot:] 
             child2_genome = parent_b[0][:pivot] + parent_a[0][pivot:]
-            child1_distance = self.calculate_distance(child1_genome)  # Calculate the distances for the children
+            child1_distance = self.calculate_distance(child1_genome)  
             child2_distance = self.calculate_distance(child2_genome)
-            if len(self.genome_list) < 100:  # Check if the number of genomes is less than 100
+            if len(self.genome_list) < 100: 
                 self.genome_list.append((child1_genome, child1_distance))
-            if len(self.genome_list) < 100:  # Check if the number of genomes is less than 100
+            if len(self.genome_list) < 100:  
                 self.genome_list.append((child2_genome, child2_distance))
         return self.genome_list
 

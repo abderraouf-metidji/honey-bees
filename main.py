@@ -1,6 +1,5 @@
 import os
 from beehive import Flower, Beehive
-import random
 import statistics
 import matplotlib.pyplot as plt
 
@@ -16,7 +15,7 @@ class Generation(Beehive):
 
         while self.generation < num_generations:
             if self.generation == 0:
-                self.genome_list = self.butiner(len(flowers))
+                self.genome_list = self.butiner(100)  
             else:
                 self.selection()
                 self.reproduction()
