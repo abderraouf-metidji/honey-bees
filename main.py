@@ -1,10 +1,10 @@
 import os
-from beehive import Flower, Beehive
 import statistics
 import matplotlib.pyplot as plt
+from beehive import Flower, Beehive
 
 class Generation(Beehive):
-    def __init__(self, x, y, flowers, num_generations=25):
+    def __init__(self, x, y, flowers, num_generations=1000):
         """
         Initializes a new generation of bees.
         """
@@ -15,15 +15,37 @@ class Generation(Beehive):
 
         while self.generation < num_generations:
             if self.generation == 0:
-                self.genome_list = self.butiner(100)  
+                self.genome_list = self.butiner(100)
+                self.verify_flowers()
             else:
                 self.selection()
                 self.reproduction()
+                self.verify_flowers()
+                self.verify_duplicate_flowers()
 
             self.generation += 1
             avg_distance = round(statistics.mean(distance for _, distance in self.genome_list), 2)
             self.avg_distances.append(avg_distance)
-            print("Generation {}: Average distance: {}".format(self.generation, avg_distance))
+            print(f"Generation {self.generation}: Average distance: {avg_distance}")
+
+    def run_evolution(self, num_generations=200):
+        """
+        Runs the evolution process for a specified number of generations.
+        """
+        for generation in range(1, num_generations + 1):
+            if generation == 1:
+                self.genome_list = self.butiner(100)
+                self.verify_flowers()
+            else:
+                self.selection()
+                self.reproduction()
+                self.verify_flowers()
+                self.verify_duplicate_flowers()
+
+            self.mutation(generation)  # Ajout de la mutation
+            avg_distance = round(statistics.mean(distance for _, distance in self.genome_list), 2)
+            self.avg_distances.append(avg_distance)
+            print(f"Generation {generation}: Average distance: {avg_distance}")
 
     def save_graphs(self):
         """
