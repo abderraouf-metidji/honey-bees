@@ -52,7 +52,7 @@ As we can see with the graph below it has helped with lowering the average dista
 
 Now that we are averaging a lower distance per generation we will be introducing a mutation strategy.
 
-The mutation method used here is quite simple, we are triggering a mutation when the average distance stays the same for 3 generations. The **mutation** method then takes a random bee out of the 100 and switches two random flowers in the genome list. 
+The mutation method used here is quite simple, we are triggering a mutation when the average distance stays the same for 5 generations. The **mutation** method then takes a random bee out of the 100 and switches two random flowers in the genome list. 
 
 This is mainly used to get out of stagnation by introducing a new variable. 
 [![Image](https://i.goopics.net/cv8vuw.png)](https://goopics.net/i/cv8vuw)
