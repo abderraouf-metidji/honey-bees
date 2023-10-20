@@ -1,6 +1,6 @@
-from random import choice
-import random
 import csv
+import random
+from random import choice
 
 class Flower:
     def __init__(self, x, y):
@@ -8,9 +8,15 @@ class Flower:
         self.flowers = []
 
     def distance(self, other_flower):
+        """
+        Calculates the distance between two flowers.
+        """
         return ((float(self.x) - float(other_flower.x))**2 + (float(self.y) - float(other_flower.y))**2)**0.5
 
     def flower_distance(self):
+        """
+        Reads the flower coordinates from a csv file and creates a list of Flower objects.
+        """
         flowers = []
         with open('flower_coordinates.csv', 'r', newline='') as csvfile:
             reader = csv.reader(csvfile)
@@ -21,6 +27,9 @@ class Flower:
         return flowers
 
     def matrix(self):
+        """
+        Creates a distance matrix for all the flowers.
+        """
         distance_matrix = [[flower.distance(other_flower) for other_flower in self.flowers] for flower in self.flowers]
         return distance_matrix
 
@@ -31,6 +40,9 @@ class Beehive(Flower):
         self.distance_matrix = self.matrix()  
 
     def butiner(self, num_iterations):
+        """
+        Creates a list of bee genomes and their respective distances. This is for the first generation of bees.
+        """
         genome_list = []
         for _ in range(num_iterations):
             remaining_flowers = self.flowers.copy()
@@ -47,11 +59,18 @@ class Beehive(Flower):
         return genome_list
 
     def selection(self):
+        """
+        Selects the 50 best bees based on their distance traveled. The 50 bees with the lowest distance are selected.
+        """
         self.genome_list.sort(key=lambda x: x[1])  
         self.genome_list = self.genome_list[:50] 
         return self.genome_list
 
     def reproduction(self):
+        """
+        Creates a new generation of bees by combining the genomes of the 50 best bees. 
+        Two bees are selected at random and their genomes are combined to create two new bees.
+        """
         available_parents = self.genome_list.copy()
         while len(self.genome_list) < 100 and len(available_parents) >= 2:  
             parent_a = choice(available_parents)  
@@ -70,6 +89,9 @@ class Beehive(Flower):
         return self.genome_list
 
     def calculate_distance(self, genome):
+        """
+        Uses the distance matrix to calculate the distance traveled by a bee.
+        """
         distance = 0
         for i in range(1, len(genome)):
             prev_flower = genome[i - 1]
@@ -78,6 +100,9 @@ class Beehive(Flower):
         return distance
     
     def verify_flowers(self):
+        """
+        Checks if the bees have visited all the flowers. If not, the missing flowers are added to the bee's genome.
+        """
         for i in range(len(self.genome_list)):
             bee_genome, _ = self.genome_list[i]
             if len(bee_genome) < 50:
@@ -92,6 +117,10 @@ class Beehive(Flower):
             self.genome_list[i] = (bee_genome, self.calculate_distance(bee_genome))
             
     def verify_duplicate_flowers(self):
+        """
+        Checks if the bees have visited the same flower more than once. 
+        If so, the duplicate flowers are removed and replaced with missing flowers.
+        """
         for i in range(len(self.genome_list)):
             bee_genome, _ = self.genome_list[i]
             seen = set()
@@ -112,6 +141,9 @@ class Beehive(Flower):
             self.genome_list[i] = (bee_genome, self.calculate_distance(bee_genome))
             
     def mutation(self, generation):
+        """
+        Mutates the bee genomes every 10 generations.
+        """
         if generation % 10 == 0:
             for i in range(len(self.genome_list)):
                 if random.random() < 0.5:

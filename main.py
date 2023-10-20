@@ -4,34 +4,15 @@ import matplotlib.pyplot as plt
 from beehive import Flower, Beehive
 
 class Generation(Beehive):
-    def __init__(self, x, y, flowers, num_generations=1000):
+    def __init__(self, x, y, flowers, num_generations=200):
         """
-        Initializes a new generation of bees.
+        Initializes a new generation of bees with a mutation process every 10 generations.
         """
         super().__init__(x, y, flowers)
         self.avg_distances = []
         self.generation = 0
         self.genome_list = []
 
-        while self.generation < num_generations:
-            if self.generation == 0:
-                self.genome_list = self.butiner(100)
-                self.verify_flowers()
-            else:
-                self.selection()
-                self.reproduction()
-                self.verify_flowers()
-                self.verify_duplicate_flowers()
-
-            self.generation += 1
-            avg_distance = round(statistics.mean(distance for _, distance in self.genome_list), 2)
-            self.avg_distances.append(avg_distance)
-            print(f"Generation {self.generation}: Average distance: {avg_distance}")
-
-    def run_evolution(self, num_generations=200):
-        """
-        Runs the evolution process for a specified number of generations.
-        """
         for generation in range(1, num_generations + 1):
             if generation == 1:
                 self.genome_list = self.butiner(100)
@@ -42,10 +23,11 @@ class Generation(Beehive):
                 self.verify_flowers()
                 self.verify_duplicate_flowers()
 
-            self.mutation(generation)  # Ajout de la mutation
+            self.generation += 1
+            self.mutation(generation)
             avg_distance = round(statistics.mean(distance for _, distance in self.genome_list), 2)
             self.avg_distances.append(avg_distance)
-            print(f"Generation {generation}: Average distance: {avg_distance}")
+            print(f"Generation {self.generation}: Average distance: {avg_distance}")
 
     def save_graphs(self):
         """
