@@ -1,10 +1,11 @@
 import os
 import statistics
+import random
 import matplotlib.pyplot as plt
 from beehive import Flower, Beehive
 
 class Generation(Beehive):
-    def __init__(self, x, y, flowers, num_generations=200):
+    def __init__(self, x, y, flowers, num_generations=500):
         """
         Initializes a new generation of bees with a mutation process every 10 generations.
         """
@@ -24,11 +25,25 @@ class Generation(Beehive):
                 self.verify_duplicate_flowers()
 
             self.generation += 1
-            self.mutation(generation)
+            # self.mutation(generation)
             avg_distance = round(statistics.mean(distance for _, distance in self.genome_list), 2)
             self.avg_distances.append(avg_distance)
             print(f"Generation {self.generation}: Average distance: {avg_distance}")
-
+            
+    def mutation(self, generation):
+        """
+        Mutates one bee genome if the average distance is the same for 5 generations.
+        """
+        if len(self.avg_distances) >= 5 and len(set(self.avg_distances[-3:])) == 1:
+            print(f"Mutation in generation {generation}")
+            mutated_bee_index = random.randint(0, len(self.genome_list) - 1)
+            bee_genome, _ = self.genome_list[mutated_bee_index]
+            if len(bee_genome) >= 2:
+                idx1, idx2 = random.sample(range(len(bee_genome)), 2)
+                bee_genome[idx1], bee_genome[idx2] = bee_genome[idx2], bee_genome[idx1]
+                self.genome_list[mutated_bee_index] = (bee_genome, self.calculate_distance(bee_genome))
+        return self.genome_list
+        
     def save_graphs(self):
         """
         Saves the best bee path and average distance evolution graphs.

@@ -139,17 +139,3 @@ class Beehive(Flower):
                 bee_genome.append(new_flower)
                 missing_flowers.remove(new_flower)
             self.genome_list[i] = (bee_genome, self.calculate_distance(bee_genome))
-            
-    def mutation(self, generation):
-        """
-        Mutates the bee genomes every 10 generations.
-        """
-        if generation % 10 == 0:
-            for i in range(len(self.genome_list)):
-                if random.random() < 0.5:
-                    bee_genome, _ = self.genome_list[i]
-                    if len(bee_genome) >= 2:
-                        idx1, idx2 = random.sample(range(len(bee_genome)), 2)
-                        bee_genome[idx1], bee_genome[idx2] = bee_genome[idx2], bee_genome[idx1]
-                        self.genome_list[i] = (bee_genome, self.calculate_distance(bee_genome))
-        return self.genome_list
