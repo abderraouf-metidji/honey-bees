@@ -39,7 +39,7 @@ class Beehive(Flower):
         self.flowers = flowers
         self.distance_matrix = self.matrix()  
 
-    def butiner(self, num_iterations):
+    def forager(self, num_iterations):
         """
         Creates a list of bee genomes and their respective distances. This is for the first generation of bees.
         """
