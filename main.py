@@ -37,7 +37,7 @@ class Generation(Beehive):
         """
         Mutates one bee genome if the average distance is the same for 5 generations.
         """
-        if len(self.avg_distances) >= 5 and len(set(self.avg_distances[-3:])) == 1:
+        if len(self.avg_distances) >= 5 and len(set(self.avg_distances[-5:])) == 1:
             mutated_bee_index = random.randint(0, len(self.genome_list) - 1)
             bee_genome, _ = self.genome_list[mutated_bee_index]
             if len(bee_genome) >= 2:
